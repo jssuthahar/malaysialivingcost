@@ -89,7 +89,9 @@ dependencies:
 | ----------------------------- | ----------------------------------------- | --------------------------------- |
 | ![Home](screenshots/Home.png) | ![Calculator](screenshots/Calc.png) | ![Export](screenshots/Print1.png) |
 
-*(Add your screenshots in `screenshots/` folder and update paths)*
+| Home Screen                   | Expense Calculator                        | Export Reports                    |
+| ----------------------------- | ----------------------------------------- | --------------------------------- |
+| ![Home](screenshots/Home1.png) | ![Calculator](screenshots/Calc2.png) | ![Export](screenshots/Print2.png) |
 
 ---
 

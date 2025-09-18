@@ -10,7 +10,7 @@ A **Flutter Web App** to help residents in Malaysia calculate monthly expenses, 
 ## 🌐 Live Demo
 
 [Open the Web App](https://jssuthahar.github.io/malaysialivingcost/)
-*(Replace `#` with your deployed web URL)*
+
 
 ---
 
@@ -87,7 +87,7 @@ dependencies:
 
 | Home Screen                   | Expense Calculator                        | Export Reports                    |
 | ----------------------------- | ----------------------------------------- | --------------------------------- |
-| ![Home](screenshots/home.png) | ![Calculator](screenshots/calculator.png) | ![Export](screenshots/export.png) |
+| ![Home](screenshots/Home.png) | ![Calculator](screenshots/Calc.png) | ![Export](screenshots/Print1.png) |
 
 *(Add your screenshots in `screenshots/` folder and update paths)*
 

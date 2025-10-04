@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -5,6 +6,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:excel/excel.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 class AutoExpensePage extends StatefulWidget {
   const AutoExpensePage({super.key});
@@ -17,119 +19,30 @@ class _AutoExpensePageState extends State<AutoExpensePage> {
   String _selectedFamilyType = "Single";
   double monthlyIncome = 5000;
 
-  /// Default expenses based on family type
-  final Map<String, Map<String, double>> defaultExpenses = {
-    "Single": {
-      "Rent": 1200,
-      "Water Bill": 20,
-      "Electricity Bill": 100,
-      "Internet Bill":
+  Map<String, Map<String, double>> defaultExpenses = {};
+  Map<String, double> currentExpenses = {}; // Initialize as empty
 
-          /// In the `_AutoExpensePageState` class, the number `120` is used as a default
-          /// value for the "Water Bill" expense in the expense breakdown for the different
-          /// family types.
-          120,
-      "Mobile Bill": 40,
-      "Groceries": 200,
-      "Gas Cylinder": 30,
-      "Vegetables": 200,
-      "Fruits": 200,
-      "Eating Out": 0,
-      "Drinking": 0,
-      "Smoking": 0,
-      "Entertainment": 0,
-      "Weekly Outing": 0,
-      "Temple Donation": 0,
-      "Transport": 200,
-      "Medical": 100,
-      "Clinic Visits": 80,
-      "Netflix": 0,
-      "Amazon Prime": 0,
-      "TV Channels": 0,
-      "Other": 100,
-    },
-    "Married": {
-      "Rent": 2000,
-      "Water Bill": 20,
-      "Electricity Bill": 100,
-      "Internet Bill": 150,
-      "Mobile Bill": 80,
-      "Groceries": 800,
-      "Gas Cylinder": 30,
-      "Vegetables": 400,
-      "Fruits": 400,
-      "Eating Out": 500,
-      "Drinking": 0,
-      "Smoking": 0,
-      "Entertainment": 0,
-      "Weekly Outing": 300,
-      "Temple Donation": 0,
-      "Transport": 0,
-      "Medical": 200,
-      "Clinic Visits": 150,
-      "Netflix": 0,
-      "Amazon Prime": 0,
-      "TV Channels": 0,
-      "Other": 200,
-    },
-    "Married + 1 Kid": {
-      "Rent": 2200,
-      "Water Bill": 50,
-      "Electricity Bill": 200,
-      "Internet Bill": 150,
-      "Mobile Bill": 80,
-      "Groceries": 800,
-      "Gas Cylinder": 30,
-      "Vegetables": 400,
-      "Fruits": 400,
-      "Eating Out": 700,
-      "Drinking": 0,
-      "Smoking": 0,
-      "Entertainment": 600,
-      "Weekly Outing": 350,
-      "Temple Donation": 150,
-      "Transport": 500,
-      "Child Education": 800,
-      "Medical": 300,
-      "Clinic Visits": 200,
-      "Netflix": 0,
-      "Amazon Prime": 0,
-      "TV Channels": 0,
-      "Other": 300,
-    },
-    "Married + 2 Kids": {
-      "Rent": 2500,
-      "Water Bill": 50,
-      "Electricity Bill": 200,
-      "Internet Bill": 200,
-      "Mobile Bill": 80,
-      "Groceries": 800,
-      "Gas Cylinder": 30,
-      "Vegetables": 800,
-      "Fruits": 600,
-      "Eating Out": 600,
-      "Drinking": 0,
-      "Smoking": 0,
-      "Entertainment": 400,
-      "Weekly Outing": 400,
-      "Temple Donation": 0,
-      "Transport": 700,
-      "Child Education": 1500,
-      "Medical": 400,
-      "Clinic Visits": 300,
-      "Netflix": 0,
-      "Amazon Prime": 0,
-      "TV Channels": 0,
-      "Other": 400,
-    }
-  };
-
-  late Map<String, double> currentExpenses;
+  bool _isLoading = true; // Add loading flag
 
   @override
   void initState() {
     super.initState();
-    currentExpenses = Map.from(defaultExpenses[_selectedFamilyType]!);
+    _loadExpenses();
+  }
+
+  Future<void> _loadExpenses() async {
+    final String data = await rootBundle.loadString('assets/expenses.json');
+    final Map<String, dynamic> jsonResult = json.decode(data);
+
+    defaultExpenses = jsonResult.map((key, value) => MapEntry(
+        key,
+        Map<String, double>.from(
+            value.map((k, v) => MapEntry(k, (v as num).toDouble())))));
+
+    setState(() {
+      currentExpenses = Map.from(defaultExpenses[_selectedFamilyType]!);
+      _isLoading = false; // Set loading to false
+    });
   }
 
   double get totalExpenses => currentExpenses.values.fold(0, (a, b) => a + b);
@@ -148,42 +61,66 @@ class _AutoExpensePageState extends State<AutoExpensePage> {
   Future<void> _exportToPDF() async {
     final pdf = pw.Document();
 
-    pdf.addPage(
-      pw.Page(
-        build: (pw.Context context) {
-          return pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
-            children: [
-              pw.Text("Malaysia Living Cost Report",
-                  style: pw.TextStyle(
-                      fontSize: 20, fontWeight: pw.FontWeight.bold)),
-              pw.SizedBox(height: 20),
-              pw.Text("Family Type: $_selectedFamilyType"),
-              pw.Text("Monthly Income: RM ${monthlyIncome.toStringAsFixed(2)}"),
-              pw.Text("Total Expenses: RM ${totalExpenses.toStringAsFixed(2)}"),
-              pw.Text(
-                  "Monthly Savings: RM ${monthlySavings.toStringAsFixed(2)}"),
-              pw.Text("Yearly Savings: RM ${yearlySavings.toStringAsFixed(2)}"),
-              pw.SizedBox(height: 20),
-              pw.Text("Expense Breakdown:"),
-              pw.SizedBox(height: 10),
-              pw.Table.fromTextArray(
-                headers: ["Category", "Amount (RM)"],
-                data: currentExpenses.entries
-                    .map((e) => [e.key, e.value.toStringAsFixed(2)])
-                    .toList(),
-              ),
-              pw.SizedBox(height: 20),
-              pw.Text(
-                  "Follow Niki Bhavi Vlogs on YouTube, GitHub, and Instagram for more tips!"),
-            ],
-          );
-        },
-      ),
-    );
+    // Sanitize expenses: ensure all values are double and not null
+    final sanitizedExpenses = currentExpenses.map((key, value) =>
+        MapEntry(key, (value is double && value != null) ? value : 0.0));
 
-    await Printing.layoutPdf(
-        onLayout: (PdfPageFormat format) async => pdf.save());
+    // Filter out zero values
+    final filteredExpenses =
+        sanitizedExpenses.entries.where((e) => e.value != 0.0).toList();
+
+    try {
+      pdf.addPage(
+        pw.Page(
+          build: (pw.Context context) {
+            return pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text("Malaysia Living Cost Report",
+                    style: pw.TextStyle(
+                        fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                pw.SizedBox(height: 20),
+                pw.Text("Family Type: $_selectedFamilyType"),
+                pw.Text(
+                    "Monthly Income: RM ${monthlyIncome.toStringAsFixed(2)}"),
+                pw.Text(
+                    "Total Expenses: RM ${totalExpenses.toStringAsFixed(2)}"),
+                pw.Text(
+                    "Monthly Savings: RM ${monthlySavings.toStringAsFixed(2)}"),
+                pw.Text(
+                    "Yearly Savings: RM ${yearlySavings.toStringAsFixed(2)}"),
+                pw.SizedBox(height: 20),
+                pw.Text("Expense Breakdown:"),
+                pw.SizedBox(height: 10),
+                filteredExpenses.isNotEmpty
+                    ? pw.Table.fromTextArray(
+                        headers: ["Category", "Amount (RM)"],
+                        data: filteredExpenses
+                            .map((e) => [
+                                  e.key,
+                                  e.value.toStringAsFixed(2),
+                                ])
+                            .toList(),
+                      )
+                    : pw.Text("No expense data available."),
+                pw.SizedBox(height: 20),
+                pw.Text(
+                    "Follow Niki Bhavi Vlogs on YouTube, GitHub, and Instagram for more tips!"),
+              ],
+            );
+          },
+        ),
+      );
+
+      await Printing.layoutPdf(
+          onLayout: (PdfPageFormat format) async => pdf.save());
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to export PDF: $e')),
+        );
+      }
+    }
   }
 
   Future<void> _exportToExcel() async {
@@ -211,6 +148,18 @@ class _AutoExpensePageState extends State<AutoExpensePage> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading || currentExpenses.isEmpty) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    final sanitizedExpenses = <String, double>{};
+    currentExpenses.forEach((key, value) {
+      sanitizedExpenses[key] = (value is double && value != null) ? value : 0.0;
+    });
+    final filteredExpenses =
+        sanitizedExpenses.entries.where((e) => e.value != 0.0).toList();
     return Scaffold(
       appBar: AppBar(
         title: const Text("Auto Expense Calculator"),
@@ -272,8 +221,8 @@ class _AutoExpensePageState extends State<AutoExpensePage> {
                         ),
                         onChanged: (val) {
                           setState(() {
-                            currentExpenses[key] =
-                                double.tryParse(val) ?? currentExpenses[key]!;
+                            final parsed = double.tryParse(val);
+                            currentExpenses[key] = parsed ?? 0.0;
                           });
                         },
                       ),

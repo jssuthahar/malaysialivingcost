@@ -21,9 +21,8 @@ class _AutoExpensePageState extends State<AutoExpensePage> {
   double monthlyIncome = 5000;
 
   Map<String, Map<String, double>> defaultExpenses = {};
-  Map<String, double> currentExpenses = {}; // Initialize as empty
-
-  bool _isLoading = true; // Add loading flag
+  Map<String, double> currentExpenses = {};
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -42,14 +41,12 @@ class _AutoExpensePageState extends State<AutoExpensePage> {
 
     setState(() {
       currentExpenses = Map.from(defaultExpenses[_selectedFamilyType]!);
-      _isLoading = false; // Set loading to false
+      _isLoading = false;
     });
   }
 
   double get totalExpenses => currentExpenses.values.fold(0, (a, b) => a + b);
-
   double get monthlySavings => monthlyIncome - totalExpenses;
-
   double get yearlySavings => monthlySavings * 12;
 
   void _updateFamilyType(String type) {
@@ -61,90 +58,49 @@ class _AutoExpensePageState extends State<AutoExpensePage> {
 
   Future<void> _exportToPDF() async {
     final pdf = pw.Document();
-
-    // Sanitize expenses: ensure all values are double and not null
     final sanitizedExpenses = currentExpenses.map((key, value) =>
         MapEntry(key, (value is double && value != null) ? value : 0.0));
-
-    // Filter out zero values
     final filteredExpenses =
         sanitizedExpenses.entries.where((e) => e.value != 0.0).toList();
 
-    try {
-      pdf.addPage(
-        pw.Page(
-          build: (pw.Context context) {
-            return pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                pw.Text("Malaysia Living Cost Report",
-                    style: pw.TextStyle(
-                        fontSize: 20, fontWeight: pw.FontWeight.bold)),
-                pw.SizedBox(height: 20),
-                pw.Text("Family Type: $_selectedFamilyType"),
-                pw.Text(
-                    "Monthly Income: RM ${monthlyIncome.toStringAsFixed(2)}"),
-                pw.Text(
-                    "Total Expenses: RM ${totalExpenses.toStringAsFixed(2)}"),
-                pw.Text(
-                    "Monthly Savings: RM ${monthlySavings.toStringAsFixed(2)}"),
-                pw.Text(
-                    "Yearly Savings: RM ${yearlySavings.toStringAsFixed(2)}"),
-                pw.SizedBox(height: 20),
-                pw.Text("Expense Breakdown:"),
-                pw.SizedBox(height: 10),
-                filteredExpenses.isNotEmpty
-                    ? pw.Table.fromTextArray(
-                        headers: ["Category", "Amount (RM)"],
-                        data: filteredExpenses
-                            .map((e) => [
-                                  e.key,
-                                  e.value.toStringAsFixed(2),
-                                ])
-                            .toList(),
-                      )
-                    : pw.Text("No expense data available."),
-                pw.SizedBox(height: 20),
-                pw.Text(
-                    "Follow Niki Bhavi Vlogs on YouTube, GitHub, and Instagram for more tips!"),
-              ],
-            );
-          },
-        ),
-      );
+    pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Text("Malaysia Living Cost Report",
+                  style: pw.TextStyle(
+                      fontSize: 20, fontWeight: pw.FontWeight.bold)),
+              pw.SizedBox(height: 20),
+              pw.Text("Family Type: $_selectedFamilyType"),
+              pw.Text("Monthly Income: RM ${monthlyIncome.toStringAsFixed(2)}"),
+              pw.Text("Total Expenses: RM ${totalExpenses.toStringAsFixed(2)}"),
+              pw.Text(
+                  "Monthly Savings: RM ${monthlySavings.toStringAsFixed(2)}"),
+              pw.Text("Yearly Savings: RM ${yearlySavings.toStringAsFixed(2)}"),
+              pw.SizedBox(height: 20),
+              pw.Text("Expense Breakdown:"),
+              pw.SizedBox(height: 10),
+              filteredExpenses.isNotEmpty
+                  ? pw.Table.fromTextArray(
+                      headers: ["Category", "Amount (RM)"],
+                      data: filteredExpenses
+                          .map((e) => [e.key, e.value.toStringAsFixed(2)])
+                          .toList(),
+                    )
+                  : pw.Text("No expense data available."),
+              pw.SizedBox(height: 20),
+              pw.Text(
+                  "Follow Niki Bhavi Vlogs on YouTube, GitHub, and Instagram!"),
+            ],
+          );
+        },
+      ),
+    );
 
-      await Printing.layoutPdf(
-          onLayout: (PdfPageFormat format) async => pdf.save());
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to export PDF: $e')),
-        );
-      }
-    }
-  }
-
-  Future<void> _exportToExcel() async {
-    final excel = Excel.createExcel();
-    final sheet = excel['Expenses'];
-
-    sheet.appendRow(["Category", "Amount (RM)"]);
-    currentExpenses.forEach((key, value) {
-      sheet.appendRow([key, value.toStringAsFixed(2)]);
-    });
-
-    sheet.appendRow([]);
-    sheet.appendRow(["Monthly Income", monthlyIncome.toStringAsFixed(2)]);
-    sheet.appendRow(["Total Expenses", totalExpenses.toStringAsFixed(2)]);
-    sheet.appendRow(["Monthly Savings", monthlySavings.toStringAsFixed(2)]);
-    sheet.appendRow(["Yearly Savings", yearlySavings.toStringAsFixed(2)]);
-
-    final fileBytes = excel.save();
-    if (fileBytes != null) {
-      await Printing.sharePdf(
-          bytes: Uint8List.fromList(fileBytes),
-          filename: "LivingCostReport.xlsx");
-    }
+    await Printing.layoutPdf(
+        onLayout: (PdfPageFormat format) async => pdf.save());
   }
 
   Future<void> _launchURL(String url) async {
@@ -164,180 +120,182 @@ class _AutoExpensePageState extends State<AutoExpensePage> {
       );
     }
 
-    final sanitizedExpenses = <String, double>{};
-    currentExpenses.forEach((key, value) {
-      sanitizedExpenses[key] = (value is double && value != null) ? value : 0.0;
-    });
-    final filteredExpenses =
-        sanitizedExpenses.entries.where((e) => e.value != 0.0).toList();
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text("Auto Expense Calculator"),
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(color: Colors.blue[100]),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text("Malaysia Living Cost",
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  SizedBox(height: 8),
-                  Text("www.msdevbuild.com", style: TextStyle(fontSize: 14)),
-                ],
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.home),
-              title: const Text("Home"),
-              onTap: () {
-                Navigator.pushReplacementNamed(context, '/');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.coffee),
-              title: const Text("Buy Me a Coffee"),
-              onTap: () => _launchURL("https://buymeacoffee.com/jssuthahar"),
-            ),
-            ListTile(
-              leading: const Icon(Icons.video_call),
-              title: const Text("Setup Meeting"),
-              onTap: () => _launchURL("https://topmate.io/jssuthahar/711026"),
-            ),
-            ListTile(
-              leading: const Icon(Icons.calculate_outlined),
-              title: const Text("Malaysia Tax Calculator"),
-              onTap: () =>
-                  _launchURL("https://jssuthahar.github.io/malaysiatax/"),
-            ),
-            const Divider(),
-            ListTile(
-              leading: const Icon(Icons.play_circle_fill),
-              title: const Text("YouTube"),
-              onTap: () => _launchURL("https://www.youtube.com/@nikibhavi"),
-            ),
-            ListTile(
-              leading: const Icon(Icons.code),
-              title: const Text("GitHub"),
-              onTap: () => _launchURL("https://github.com/jssuthahar"),
-            ),
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text("Instagram"),
-              onTap: () => _launchURL("https://www.instagram.com/nikibhavi/"),
-            ),
-          ],
+        backgroundColor: Colors.redAccent,
+        elevation: 4,
+        title: const Text(
+          "Auto Expense Calculator",
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Family type dropdown
-            DropdownButtonFormField<String>(
-              value: _selectedFamilyType,
-              items: [
-                "Single",
-                "Married",
-                "Married + 1 Kid",
-                "Married + 2 Kids"
-              ].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-              onChanged: (val) {
-                if (val != null) _updateFamilyType(val);
-              },
-              decoration: const InputDecoration(
-                labelText: "Family Type",
-                border: OutlineInputBorder(),
+            // Header
+            Card(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
+              elevation: 3,
+              color: Colors.white,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    Row(
+                      children: const [
+                        Icon(Icons.family_restroom, color: Colors.redAccent),
+                        SizedBox(width: 8),
+                        Text("Family Configuration",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16)),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<String>(
+                      value: _selectedFamilyType,
+                      items: [
+                        "Single",
+                        "Married",
+                        "Married + 1 Kid",
+                        "Married + 2 Kids"
+                      ]
+                          .map(
+                              (e) => DropdownMenuItem(value: e, child: Text(e)))
+                          .toList(),
+                      onChanged: (val) {
+                        if (val != null) _updateFamilyType(val);
+                      },
+                      decoration: InputDecoration(
+                        prefixIcon: const Icon(Icons.people_outline),
+                        labelText: "Select Family Type",
+                        filled: true,
+                        fillColor: Colors.grey[50],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        prefixIcon: const Icon(Icons.attach_money),
+                        labelText: "Monthly Income (After Tax)",
+                        filled: true,
+                        fillColor: Colors.grey[50],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onChanged: (val) {
+                        setState(() {
+                          monthlyIncome = double.tryParse(val) ?? monthlyIncome;
+                        });
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
-
-            // Income input
-            TextField(
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: "Monthly Income (After Tax)",
-                border: OutlineInputBorder(),
-              ),
-              onChanged: (val) {
-                setState(() {
-                  monthlyIncome = double.tryParse(val) ?? monthlyIncome;
-                });
-              },
             ),
             const SizedBox(height: 20),
 
             // Expense list
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: currentExpenses.length,
-              itemBuilder: (context, index) {
-                String key = currentExpenses.keys.elementAt(index);
-                return Card(
-                  child: ListTile(
-                    title: Text(key),
-                    trailing: SizedBox(
-                      width: 100,
-                      child: TextField(
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          hintText: currentExpenses[key]!.toStringAsFixed(0),
-                        ),
-                        onChanged: (val) {
-                          setState(() {
-                            final parsed = double.tryParse(val);
-                            currentExpenses[key] = parsed ?? 0.0;
-                          });
-                        },
+            Text("Expense Breakdown",
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.redAccent,
+                    )),
+            const SizedBox(height: 10),
+            ...currentExpenses.entries.map((entry) {
+              return Card(
+                margin: const EdgeInsets.symmetric(vertical: 6),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+                elevation: 2,
+                child: ListTile(
+                  leading: const Icon(Icons.category_outlined,
+                      color: Colors.redAccent),
+                  title: Text(entry.key,
+                      style: const TextStyle(fontWeight: FontWeight.w600)),
+                  trailing: SizedBox(
+                    width: 100,
+                    child: TextField(
+                      textAlign: TextAlign.right,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        hintText: entry.value.toStringAsFixed(0),
+                        border: InputBorder.none,
                       ),
+                      onChanged: (val) {
+                        setState(() {
+                          final parsed = double.tryParse(val);
+                          currentExpenses[entry.key] = parsed ?? 0.0;
+                        });
+                      },
                     ),
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            }).toList(),
+
             const SizedBox(height: 20),
 
-            // Summary
+            // Summary section
             Card(
-              color: Colors.blue[50],
-              child: ListTile(
-                title: Text(
-                    "Total Expenses: RM ${totalExpenses.toStringAsFixed(2)}"),
-                subtitle: Text(
-                    "Monthly Savings: RM ${monthlySavings.toStringAsFixed(2)}\nYearly Savings: RM ${yearlySavings.toStringAsFixed(2)}"),
+              color: Colors.redAccent.withOpacity(0.1),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
+              elevation: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text("Summary",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 18)),
+                    const SizedBox(height: 10),
+                    Text(
+                        "💰 Total Expenses: RM ${totalExpenses.toStringAsFixed(2)}",
+                        style: const TextStyle(fontSize: 15)),
+                    Text(
+                        "💵 Monthly Savings: RM ${monthlySavings.toStringAsFixed(2)}",
+                        style: const TextStyle(fontSize: 15)),
+                    Text(
+                        "📅 Yearly Savings: RM ${yearlySavings.toStringAsFixed(2)}",
+                        style: const TextStyle(fontSize: 15)),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: 20),
-
-            // Pie Chart of expenses
-
             const SizedBox(height: 30),
 
-            // Yearly Savings Projection Bar Chart
+            // Bar Chart
             const Text(
               "Yearly Savings Projection",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
+            const SizedBox(height: 10),
             SizedBox(
-              height: 250,
+              height: 240,
               child: BarChart(
                 BarChartData(
                   alignment: BarChartAlignment.spaceAround,
-                  borderData: FlBorderData(show: true),
+                  borderData: FlBorderData(show: false),
+                  gridData: FlGridData(show: false),
                   titlesData: FlTitlesData(
-                    leftTitles: AxisTitles(
-                        sideTitles:
-                            SideTitles(showTitles: true, reservedSize: 50)),
+                    leftTitles:
+                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
                     bottomTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
                         getTitlesWidget: (value, meta) {
-                          return Text("M${value.toInt()}");
+                          return Text("M${value.toInt()}",
+                              style: const TextStyle(fontSize: 10));
                         },
                       ),
                     ),
@@ -349,10 +307,12 @@ class _AutoExpensePageState extends State<AutoExpensePage> {
                       barRods: [
                         BarChartRodData(
                           toY: cumulativeSavings,
-                          color:
-                              cumulativeSavings >= 0 ? Colors.blue : Colors.red,
-                          width: 18,
-                          borderRadius: BorderRadius.circular(4),
+                          gradient: LinearGradient(colors: [
+                            Colors.redAccent,
+                            Colors.orangeAccent,
+                          ]),
+                          width: 16,
+                          borderRadius: BorderRadius.circular(6),
                         ),
                       ],
                     );
@@ -362,17 +322,20 @@ class _AutoExpensePageState extends State<AutoExpensePage> {
             ),
             const SizedBox(height: 30),
 
-            // Export buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: _exportToPDF,
-                  icon: const Icon(Icons.picture_as_pdf),
-                  label: const Text("Export PDF"),
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            // Export button
+            Center(
+              child: ElevatedButton.icon(
+                onPressed: _exportToPDF,
+                icon: const Icon(Icons.picture_as_pdf),
+                label: const Text("Export PDF"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.redAccent,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
-              ],
+              ),
             ),
             const SizedBox(height: 30),
           ],

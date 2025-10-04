@@ -26,11 +26,15 @@
     let progress = 0;
     const interval = setInterval(() => {
       progress += Math.floor(Math.random() * 5) + 1;
-      if (progress > 95) progress = 95;
+      if (progress > 100) progress = 100; // Allow up to 100%
       document.getElementById('progress-bar').value = progress;
       document.getElementById('progress-text').innerText = progress + "%";
+      // Optionally hide loader if progress reaches 100%
+      if (progress === 100) {
+        clearInterval(interval);
+      }
     }, 200);
-    
+
     // Remove progress after Flutter loads
     window.addEventListener('flutter-first-frame', () => {
       clearInterval(interval);

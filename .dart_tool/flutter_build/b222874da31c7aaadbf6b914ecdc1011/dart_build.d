@@ -1,0 +1,1 @@
+ /Users/suthahar/Documents/GitHub/malaysialivingcost/.dart_tool/flutter_build/b222874da31c7aaadbf6b914ecdc1011/dart_build_result.json: 

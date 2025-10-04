@@ -7,6 +7,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:excel/excel.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:url_launcher/url_launcher.dart';
 
 class AutoExpensePage extends StatefulWidget {
   const AutoExpensePage({super.key});
@@ -146,6 +147,15 @@ class _AutoExpensePageState extends State<AutoExpensePage> {
     }
   }
 
+  Future<void> _launchURL(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not launch URL')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading || currentExpenses.isEmpty) {
@@ -163,6 +173,65 @@ class _AutoExpensePageState extends State<AutoExpensePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Auto Expense Calculator"),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(color: Colors.blue[100]),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const [
+                  Text("Malaysia Living Cost",
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 8),
+                  Text("www.msdevbuild.com", style: TextStyle(fontSize: 14)),
+                ],
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.home),
+              title: const Text("Home"),
+              onTap: () {
+                Navigator.pushReplacementNamed(context, '/');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.coffee),
+              title: const Text("Buy Me a Coffee"),
+              onTap: () => _launchURL("https://buymeacoffee.com/jssuthahar"),
+            ),
+            ListTile(
+              leading: const Icon(Icons.video_call),
+              title: const Text("Setup Meeting"),
+              onTap: () => _launchURL("https://topmate.io/jssuthahar/711026"),
+            ),
+            ListTile(
+              leading: const Icon(Icons.calculate_outlined),
+              title: const Text("Malaysia Tax Calculator"),
+              onTap: () =>
+                  _launchURL("https://jssuthahar.github.io/malaysiatax/"),
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.play_circle_fill),
+              title: const Text("YouTube"),
+              onTap: () => _launchURL("https://www.youtube.com/@nikibhavi"),
+            ),
+            ListTile(
+              leading: const Icon(Icons.code),
+              title: const Text("GitHub"),
+              onTap: () => _launchURL("https://github.com/jssuthahar"),
+            ),
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text("Instagram"),
+              onTap: () => _launchURL("https://www.instagram.com/nikibhavi/"),
+            ),
+          ],
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),

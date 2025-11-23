@@ -5,6 +5,8 @@
 
 A **Flutter Web App** to help residents in Malaysia calculate monthly expenses, plan savings, and visualize spending patterns. Supports **single, married, and families with kids**, with lifestyle-based expense adjustments and export options.
 
+<p align="center"> <img src="https://img.shields.io/badge/Project-Malaysia%20Living%20Cost-blue?style=for-the-badge"> <img src="https://img.shields.io/github/stars/jssuthahar/malaysialivingcost?style=for-the-badge"> <img src="https://img.shields.io/github/last-commit/jssuthahar/malaysialivingcost?style=for-the-badge&color=green"> <img src="https://img.shields.io/badge/Data-Updated%20Monthly-orange?style=for-the-badge"> </p>
+
 ---
 
 ## 🌐 Live Demo

@@ -1,7 +1,7 @@
 
 # 🇲🇾 Malaysia Living Cost & Savings Calculator
-<p align="center"> <img src="https://img.shields.io/badge/Project-Malaysia%20Living%20Cost-blue?style=for-the-badge"> <img src="https://img.shields.io/github/stars/jssuthahar/malaysialivingcost?style=for-the-badge"> <img src="https://img.shields.io/github/last-commit/jssuthahar/malaysialivingcost?style=for-the-badge&color=green"> <img src="https://img.shields.io/badge/Data-Updated%20Monthly-orange?style=for-the-badge"> 
-[![Flutter](https://img.shields.io/badge/Flutter-3.13-blue?logo=flutter\&logoColor=white)](https://flutter.dev/) [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE) </p>
+<p align="center"> <img src="https://img.shields.io/badge/Project-Malaysia%20Living%20Cost-blue?style=for-the-badge"> <img src="https://img.shields.io/github/stars/jssuthahar/malaysialivingcost?style=for-the-badge"> <img src="https://img.shields.io/github/last-commit/jssuthahar/malaysialivingcost?style=for-the-badge&color=green"> <img src="https://img.shields.io/badge/Data-Updated%20Monthly-orange?style=for-the-badge"> </p>
+[![Flutter](https://img.shields.io/badge/Flutter-3.13-blue?logo=flutter\&logoColor=white)](https://flutter.dev/) [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE) 
 
 
 

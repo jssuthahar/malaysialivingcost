@@ -135,3 +135,25 @@ dependencies:
 
 This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for details.
 
+malaysia-living-cost
+cost-of-living
+malaysia-expenses
+monthly-budget
+kuala-lumpur-living
+food-cost-malaysia
+housing-cost
+transportation-cost
+expat-living-malaysia
+student-budget-malaysia
+average-cost-of-living
+malaysia-rent
+malaysia-groceries
+malaysia-utilities
+daily-expenses-malaysia
+family-budget-malaysia
+malaysia-lifestyle-cost
+living-expenses-malaysia
+malaysia-budget-calculator
+malaysia-monthly-expenses
+
+
